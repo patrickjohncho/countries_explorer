@@ -14,15 +14,13 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({ country, weather, onBac
   return (
     <div>
       <button onClick={onBack}>Back</button>
-      <h2>{country.name}</h2>
+      <h2>{country.name} {country.emoji}</h2>
       <p>Capital: {country.capital}</p>
-      <p>Population: {country.population.toLocaleString()}</p>
-      <p>Area: {country.area.toLocaleString()} km²</p>
+      {/*<p>Population: {country.population.toLocaleString()}</p>*/}
       <p>Languages: {country.languages.join(', ')}</p>
-      <p>Currencies: {country.currencies.join(', ')}</p>
-      <p>Neighboring Countries: {country.neighbouringCountries.join(', ')}</p>
-      <p>Time Zones: {country.timezones.join(', ')}</p>
-
+      <p>Currencies: {country.currency.join(', ')}</p>
+      {/*<p>Neighboring Countries: {country.neighbouringCountries.join(', ')}</p>
+      <p>Time Zones: {country.timezones.join(', ')}</p>*/}
       {weather && <WeatherInfo weather={weather} />}
     </div>
   );

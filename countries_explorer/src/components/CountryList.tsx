@@ -24,7 +24,7 @@ const CountryList: React.FC<CountryListProps> = ({ searchQuery, onSelect }) => {
     region: country.region,
     population: country.population,
     area: country.area,
-    flag: country.flag,
+    emoji: country.emoji,
     languages: country.languages.map((lang: any) => lang.name),
     currencies: country.currencies.map((curr: any) => curr.name),
     neighboringCountries: country.borders.map((border: any) => border.name),

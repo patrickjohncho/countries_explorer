@@ -8,10 +8,10 @@ interface CountryCardProps {
 }
 
 const CountryCard: React.FC<CountryCardProps> = ({ country, onSelect }) => {
+   console.log('CountryCard Rendered:', country);
   return (
     <div onClick={() => onSelect(country)} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px' }}>
-      <img src={country.flag} alt={`${country.name} flag`} width="100" />
-      <h3>{country.name}</h3>
+      <h3>{country.name} {country.emoji}</h3>
       <p>Capital: {country.capital}</p>
       <p>Region: {country.region}</p>
     </div>

@@ -6,20 +6,12 @@ export const GET_COUNTRIES = gql`
     countries(filter: { name: { regex: $name } }) {
       name
       capital
-      region
-      population
-      area
-      flag: emoji
+      awsRegion
+      emoji
       languages {
         name
       }
-      currencies {
-        name
-      }
-      borders {
-        name
-      }
-      timezones
+      currency
     }
   }
 `;
