@@ -13,7 +13,7 @@ const App: React.FC = () => {
 
   const handleSearch = async (query: string) => {
     //Fetch countries from the GraphQL API
-    //const fetchedCountries: Country[] = []; //Replace with API call
+    const fetchedCountries: Country[] = []; //Replace with API call
     //setCountries(fetchedCountries); //set countries for the list
   };
 
@@ -22,7 +22,7 @@ const App: React.FC = () => {
 
     //Fetch weather data for the selected country's capital
     const fetchedWeather: Weather = {
-      temperature: 25, // Replace with actual API call
+      temperature: 25, //Replace with actual API call
       condition: 'Sunny',
       icon: 'https://via.placeholder.com/50',
     };
