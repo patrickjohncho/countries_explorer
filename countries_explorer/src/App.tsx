@@ -29,7 +29,7 @@ const App: React.FC = () => {
         setSelectedCountry({
           name: canada.name,
           capital: canada.capital,
-          continent: canada.continent.map((lang: any) => lang.name),
+          continent: canada.continent?.name,
           emoji: canada.emoji,
           languages: canada.languages.map((lang: any) => lang.name),
           currency: canada.currency,
@@ -66,7 +66,7 @@ const App: React.FC = () => {
   const countries: Country[] = data?.countries?.map((country: any) => ({
     name: country.name,
     capital: country.capital,
-    continent: country.continent.map((lang: any) => lang.name),
+    continent: country.continent?.name,
     emoji: country.emoji,
     languages: country.languages.map((lang: any) => lang.name),
     currency: country.currency,
@@ -75,29 +75,42 @@ const App: React.FC = () => {
   // Dynamically generate unique regions from countries and sort alphabetically
   const uniqueRegions = Array.from(
     new Set(
-      countries.flatMap((country) =>
-        Array.isArray(country.continent) ? country.continent : []
-      )
+      countries
+        .flatMap((country) => country.continent) // Flatten continent arrays
+        .filter((continent) => typeof continent === 'string' && continent.trim() !== '') // Ensure valid strings
     )
-  )
-  .filter((continent) => typeof continent === 'string' && continent.trim() !== '') // Ensure valid strings
-  .sort((a, b) => a.localeCompare(b));
-  
-
+  ).sort((a, b) => a.localeCompare(b)); // Sort alphabetically
 
   // Apply search, filters, and sorting
   const filteredCountries = countries
-    .filter((country) => {
-      const matchesSearch = country.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      const matchesRegion = regionFilter === 'All' || (Array.isArray(country.continent) && country.continent.includes(regionFilter));
-      const matchesLanguage =
-        languageFilter === 'All' || country.languages.includes(languageFilter);
-      return matchesSearch && matchesRegion && matchesLanguage;
-    })
-    .sort((a, b) => {
-      if (sortOrder === 'asc') return a.name.localeCompare(b.name);
-      return b.name.localeCompare(a.name);
-    });
+  .filter((country) => {
+    console.log('Filtering Country:', country.name);
+    console.log('Country Continent:', country.continent);
+    console.log('Region Filter:', regionFilter);
+
+    const matchesSearch = country.name
+      .toLowerCase()
+      .includes(debouncedSearchQuery.toLowerCase());
+
+    const matchesRegion =
+      regionFilter === 'All' ||
+      (country.continent &&
+        country.continent.trim().toLowerCase() === regionFilter.trim().toLowerCase());
+    
+
+    const matchesLanguage =
+      languageFilter === 'All' || country.languages.includes(languageFilter);
+
+    console.log('Matches Search:', matchesSearch);
+    console.log('Matches Region:', matchesRegion);
+    console.log('Matches Language:', matchesLanguage);
+
+    return matchesSearch && matchesRegion && matchesLanguage;
+  })
+  .sort((a, b) => {
+    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+    return b.name.localeCompare(a.name);
+  });
 
   if (loading) return <p className="text-center text-gray-500">Loading countries...</p>;
   if (error) return <p className="text-center text-red-500">Error fetching countries: {error.message}</p>;
@@ -154,14 +167,12 @@ const App: React.FC = () => {
             className="p-3 border border-gray-300 rounded-lg"
           >
             <option value="All">All Regions</option>
-            {uniqueRegions.map((continent) => (
-              <option key={continent} value={continent}>
-                {continent}
+            {uniqueRegions.map((region) => (
+              <option key={region} value={region}>
+                {region}
               </option>
             ))}
           </select>
-
-
 
           {/* Language Filter */}
           <select
@@ -191,24 +202,27 @@ const App: React.FC = () => {
         {/* Scrollable List */}
         <div
           style={{
-            maxHeight: '400px', // Enforces scrollable height
-            overflowY: 'auto', // Enables vertical scrolling
+            height: '400px',
+            overflowY: 'auto',
           }}
           className="border border-gray-200 rounded-lg p-4 bg-white shadow-md"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCountries.length > 0 ? (
-              filteredCountries.map((country) => (
+          {filteredCountries.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCountries.map((country) => (
                 <CountryCard
                   key={country.name}
                   country={country}
                   onSelect={handleSelectCountry}
                 />
-              ))
-            ) : (
-              <p className="text-center text-gray-500 col-span-full">No countries found</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              <p>No countries match your criteria.</p>
+              <p>Try adjusting the filters or search query.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
