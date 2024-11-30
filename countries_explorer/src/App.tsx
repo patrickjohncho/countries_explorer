@@ -40,10 +40,15 @@ const App: React.FC = () => {
   }, [data]);
 
   const handleSelectCountry = async (country: Country) => {
-    setSelectedCountry(country);
-    if (country.capital) {
-      const weatherData = await fetchWeather(country.capital);
-      setWeather(weatherData);
+    try {
+      setSelectedCountry(country);
+      if (country.capital) {
+        const weatherData = await fetchWeather(country.capital);
+        setWeather(weatherData);
+      }
+    } catch (error) {
+      console.error('Error fetching weather:', error);
+      alert('Failed to fetch weather data. Please try again later.');
     }
   };
 
