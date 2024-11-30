@@ -84,26 +84,17 @@ const App: React.FC = () => {
   // Apply search, filters, and sorting
   const filteredCountries = countries
   .filter((country) => {
-    console.log('Filtering Country:', country.name);
-    console.log('Country Continent:', country.continent);
-    console.log('Region Filter:', regionFilter);
-
-    const matchesSearch = country.name
+    const matchesSearch = debouncedSearchQuery === '' || country.name
       .toLowerCase()
-      .includes(debouncedSearchQuery.toLowerCase());
+      .startsWith(debouncedSearchQuery.toLowerCase());
 
     const matchesRegion =
       regionFilter === 'All' ||
       (country.continent &&
         country.continent.trim().toLowerCase() === regionFilter.trim().toLowerCase());
-    
 
     const matchesLanguage =
       languageFilter === 'All' || country.languages.includes(languageFilter);
-
-    console.log('Matches Search:', matchesSearch);
-    console.log('Matches Region:', matchesRegion);
-    console.log('Matches Language:', matchesLanguage);
 
     return matchesSearch && matchesRegion && matchesLanguage;
   })

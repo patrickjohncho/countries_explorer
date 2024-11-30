@@ -2,12 +2,8 @@
 export interface Country {
     name: string;
     capital: string;
-    continent: string[];
-    //population: number;
+    continent: string;
     emoji: string;
     languages: string[];
     currency: string[];
-    /*neighbouringCountries: string[];
-    timezones: string[];
-    */
 }
