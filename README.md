@@ -29,6 +29,6 @@ Setup Instructions:
 3. Open a terminal in the project directory through VS Code.
 4. Navigate to directory countries_explorer/countries_explorer (cd countries_explorer)
 5. Run the command "npm install" to install all required dependencies
-6. Add weather API key - in the .env file replace "YOUR_API_KEY" with a valid OpenWeatherMap API key.
+6. Add weather API key - Create a .env file and add VITE_WEATHER_API_KEY=YOUR_API_KEY, where YOUR_API_KEY is a valid OpenWeatherMap API key
 7. Run the command "npm run dev" to start the application
 8. CTRL-click on the link provided once the application starts, and view the application through a web browser
