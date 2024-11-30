@@ -13,7 +13,7 @@ const CountryCard: React.FC<CountryCardProps> = ({ country, onSelect }) => {
     <div onClick={() => onSelect(country)} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px' }}>
       <h3>{country.name} {country.emoji}</h3>
       <p>Capital: {country.capital}</p>
-      <p>Region: {country.region}</p>
+      <p>Region: {country.continent}</p>
     </div>
   );
 };

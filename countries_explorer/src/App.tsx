@@ -29,7 +29,7 @@ const App: React.FC = () => {
         setSelectedCountry({
           name: canada.name,
           capital: canada.capital,
-          region: canada.awsRegion,
+          continent: canada.continent.map((lang: any) => lang.name),
           emoji: canada.emoji,
           languages: canada.languages.map((lang: any) => lang.name),
           currency: canada.currency,
@@ -66,20 +66,30 @@ const App: React.FC = () => {
   const countries: Country[] = data?.countries?.map((country: any) => ({
     name: country.name,
     capital: country.capital,
-    region: country.awsRegion, // Use awsRegion for regions
+    continent: country.continent.map((lang: any) => lang.name),
     emoji: country.emoji,
     languages: country.languages.map((lang: any) => lang.name),
     currency: country.currency,
   })) || [];
 
-  // Dynamically generate unique regions from countries
-  const uniqueRegions = Array.from(new Set(countries.map((country) => country.region)));
+  // Dynamically generate unique regions from countries and sort alphabetically
+  const uniqueRegions = Array.from(
+    new Set(
+      countries.flatMap((country) =>
+        Array.isArray(country.continent) ? country.continent : []
+      )
+    )
+  )
+  .filter((continent) => typeof continent === 'string' && continent.trim() !== '') // Ensure valid strings
+  .sort((a, b) => a.localeCompare(b));
+  
+
 
   // Apply search, filters, and sorting
   const filteredCountries = countries
     .filter((country) => {
       const matchesSearch = country.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      const matchesRegion = regionFilter === 'All' || country.region === regionFilter;
+      const matchesRegion = regionFilter === 'All' || (Array.isArray(country.continent) && country.continent.includes(regionFilter));
       const matchesLanguage =
         languageFilter === 'All' || country.languages.includes(languageFilter);
       return matchesSearch && matchesRegion && matchesLanguage;
@@ -104,7 +114,7 @@ const App: React.FC = () => {
                 {selectedCountry.name} {selectedCountry.emoji}
               </h2>
               <p className="mt-2"><strong>Capital:</strong> {selectedCountry.capital}</p>
-              <p><strong>Region:</strong> {selectedCountry.region}</p>
+              <p><strong>Region:</strong> {selectedCountry.continent}</p>
               <p><strong>Languages:</strong> {selectedCountry.languages.join(', ')}</p>
               <p><strong>Currency:</strong> {selectedCountry.currency}</p>
 
@@ -144,12 +154,14 @@ const App: React.FC = () => {
             className="p-3 border border-gray-300 rounded-lg"
           >
             <option value="All">All Regions</option>
-            {uniqueRegions.map((region) => (
-              <option key={region} value={region}>
-                {region}
+            {uniqueRegions.map((continent) => (
+              <option key={continent} value={continent}>
+                {continent}
               </option>
             ))}
           </select>
+
+
 
           {/* Language Filter */}
           <select

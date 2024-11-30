@@ -6,7 +6,9 @@ export const GET_COUNTRIES = gql`
     countries(filter: { name: { regex: $name } }) {
       name
       capital
-      awsRegion
+      continent {
+        name
+      }
       emoji
       languages {
         name

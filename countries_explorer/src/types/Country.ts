@@ -2,7 +2,7 @@
 export interface Country {
     name: string;
     capital: string;
-    region: string;
+    continent: string[];
     //population: number;
     emoji: string;
     languages: string[];
