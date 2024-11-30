@@ -10,6 +10,9 @@ const App: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [regionFilter, setRegionFilter] = useState<string>('All');
+  const [languageFilter, setLanguageFilter] = useState<string>('All');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
 
   const { loading, error, data } = useQuery(GET_COUNTRIES, {
@@ -48,20 +51,43 @@ const App: React.FC = () => {
     setSearchQuery(event.target.value);
   };
 
+  const handleRegionFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setRegionFilter(event.target.value);
+  };
+
+  const handleLanguageFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguageFilter(event.target.value);
+  };
+
+  const handleSortOrderChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(event.target.value as 'asc' | 'desc');
+  };
+
   const countries: Country[] = data?.countries?.map((country: any) => ({
     name: country.name,
     capital: country.capital,
-    region: country.awsRegion,
+    region: country.awsRegion, // Use awsRegion for regions
     emoji: country.emoji,
     languages: country.languages.map((lang: any) => lang.name),
     currency: country.currency,
   })) || [];
 
+  // Dynamically generate unique regions from countries
+  const uniqueRegions = Array.from(new Set(countries.map((country) => country.region)));
+
+  // Apply search, filters, and sorting
   const filteredCountries = countries
-    .filter((country) =>
-      country.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .filter((country) => {
+      const matchesSearch = country.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+      const matchesRegion = regionFilter === 'All' || country.region === regionFilter;
+      const matchesLanguage =
+        languageFilter === 'All' || country.languages.includes(languageFilter);
+      return matchesSearch && matchesRegion && matchesLanguage;
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+      return b.name.localeCompare(a.name);
+    });
 
   if (loading) return <p className="text-center text-gray-500">Loading countries...</p>;
   if (error) return <p className="text-center text-red-500">Error fetching countries: {error.message}</p>;
@@ -69,45 +95,91 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Country Details Section */}
-      <div className="bg-white shadow-md p-6 sticky top-0 z-10">
-        {selectedCountry && (
-          <div>
-            <h1 className="text-3xl font-bold text-blue-600">{selectedCountry.name} {selectedCountry.emoji}</h1>
-            <p className="mt-2"><strong>Capital:</strong> {selectedCountry.capital}</p>
-            <p><strong>Region:</strong> {selectedCountry.region}</p>
-            <p><strong>Languages:</strong> {selectedCountry.languages.join(', ')}</p>
-            <p><strong>Currency:</strong> {selectedCountry.currency}</p>
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="ml-8 bg-white shadow-md p-6 sticky top-0 z-10">
+          {selectedCountry && (
+            <div>
+              <h1>Countries Explorer</h1>
+              <h2 className="text-3xl font-bold text-blue-600">
+                {selectedCountry.name} {selectedCountry.emoji}
+              </h2>
+              <p className="mt-2"><strong>Capital:</strong> {selectedCountry.capital}</p>
+              <p><strong>Region:</strong> {selectedCountry.region}</p>
+              <p><strong>Languages:</strong> {selectedCountry.languages.join(', ')}</p>
+              <p><strong>Currency:</strong> {selectedCountry.currency}</p>
 
-            {weather && (
-              <div className="mt-4">
-                <h3 className="text-xl font-bold">Weather in {selectedCountry.capital}</h3>
-                <p><strong>Temperature:</strong> {weather.temperature}°C</p>
-                <p><strong>Condition:</strong> {weather.condition}</p>
-                <img src={weather.icon} alt={weather.condition} className="mt-2 w-16 h-16" />
-              </div>
-            )}
-          </div>
-        )}
+              {weather && (
+                <div className="mt-4">
+                  <h3 className="text-xl font-bold">Weather in {selectedCountry.capital}</h3>
+                  <p><strong>Temperature:</strong> {weather.temperature}°C</p>
+                  <p><strong>Condition:</strong> {weather.condition}</p>
+                  <img
+                    src={weather.icon}
+                    alt={weather.condition}
+                    className="mt-2 w-16 h-16"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Search Bar and Scrollable Country List */}
       <div className="max-w-4xl mx-auto mt-4 p-4">
-        {/* Search Bar */}
-        <div className="mb-4">
+        {/* Filters and Sort Options */}
+        <div className="mb-4 flex flex-col md:flex-row gap-4">
           <input
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Search for a country..."
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className="mt-2 text-sm text-gray-500">Currently Selected: {selectedCountry?.name || 'None'}</p>
+
+          {/* Region Filter */}
+          <select
+            value={regionFilter}
+            onChange={handleRegionFilterChange}
+            className="p-3 border border-gray-300 rounded-lg"
+          >
+            <option value="All">All Regions</option>
+            {uniqueRegions.map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
+
+          {/* Language Filter */}
+          <select
+            value={languageFilter}
+            onChange={handleLanguageFilterChange}
+            className="p-3 border border-gray-300 rounded-lg"
+          >
+            <option value="All">All Languages</option>
+            {Array.from(new Set(countries.flatMap((c) => c.languages))).map((language) => (
+              <option key={language} value={language}>
+                {language}
+              </option>
+            ))}
+          </select>
+
+          {/* Sort Order */}
+          <select
+            value={sortOrder}
+            onChange={handleSortOrderChange}
+            className="p-3 border border-gray-300 rounded-lg"
+          >
+            <option value="asc">Sort: A-Z</option>
+            <option value="desc">Sort: Z-A</option>
+          </select>
         </div>
 
         {/* Scrollable List */}
         <div
           style={{
-            maxHeight: '200px', // Enforces scrollable height
+            maxHeight: '400px', // Enforces scrollable height
             overflowY: 'auto', // Enables vertical scrolling
           }}
           className="border border-gray-200 rounded-lg p-4 bg-white shadow-md"
@@ -132,3 +204,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
