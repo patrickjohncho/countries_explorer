@@ -22,4 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-countries_explorer/countries_explorer/.env
